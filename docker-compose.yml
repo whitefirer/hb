@@ -1,0 +1,10 @@
+version: '2'
+services:
+  web:
+    build: .
+    volumes:
+     - .:/src
+    ports:
+      - "9102:9102"
+  redis:
+    image: "redis:alpine"

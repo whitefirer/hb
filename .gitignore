@@ -1,0 +1,7 @@
+/.vs/
+/server/__pycache__/
+/__pycache__/
+*.pyc
+*.zip
+*.7z
+*.sln

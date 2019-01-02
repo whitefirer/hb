@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"> 
+    <title>红包2019</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">  
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://unpkg.com/viz.js@1.8.0/viz.js"></script>
+    <script src="https://unpkg.com/d3-graphviz@0.1.2/build/d3-graphviz.min.js"></script>
+</head>
+<body>
+    <center style="margin-top:100px;margin-bottom: 50px;">
+        <div class="btn-group" data-toggle="buttons">
+            <label id="button1" class="btn btn-danger">
+                <input name="options" type="radio">红包1</input>
+            </label>
+            <label id="button2" class="btn btn-danger">
+                <input name="options" type="radio">红包2</input>
+            </label>
+            <input id="node_id" name="node_id" type="text" hidden value="1">
+            <input id="hb_id" name="hb_id" type="text" hidden value="201901">
+            <input id="click_time" name="click_time" type="text" hidden value="{{'%10.06f'|mytime}}">
+        </div>
+    </center>
+    <div id="graph_box" style="font-weight: bold;overflow-x:auto;overflow-y:auto;width:100%;text-align:center;justify-content: center;vertical-align:middle;">
+        <p>Time is life, Life has no point.</p>
+        <p>玩法：收集所有提示，并从提示中找到答案</p>
+        <p>PS: 可能需要用到一些解密的技巧</p>
+        <p>领取方式：支付宝口令</p>
+        <p>选个红包吧~</p>
+        <p></p>
+        <p>请遵守游戏规则，解题成功后不要将口令分享给他人</p>
+        <p>您可以选择自己发红包</p>
+    </div>
+    <div id="graph_email" style="margin-top:200px;font-weight: bold;overflow-x:auto;overflow-y:auto;width:100%;text-align:center;justify-content: center;vertical-align:middle;">
+
+    </div>
+</body>
+<script>
+    function render_src(data){
+        console.log(data);
+        var dotIndex = 0;
+        var graphviz = d3.select("#graph").graphviz();
+
+        function render() {
+            dots = [data]
+            var dot = dots[dotIndex % dots.length];
+            var transition1 = d3.transition()
+                .delay(10)
+                .duration(100 + 100 * dotIndex);
+            graphviz
+                .tweenShapes(false)
+                .engine("dot")
+                .dot(dot)
+                .transition(transition1)
+                .render();
+            dotIndex += 1;
+
+            transition1
+            .transition()
+                .duration(0)
+                .on('end', function () {
+                    if (dotIndex != dots.length) {
+                        render();
+                    }
+                    nodes = d3.selectAll('.node,.edge');
+                    nodes
+                    .selectAll("g")
+                        .on("click", fieldClickHandler)
+                    .selectAll("a")
+                        // Remove the workaround attributes to avoid consuming the click events
+                        .attr("href", null)
+                        .attr("title", null);
+                        });
+        }
+
+        render();
+    }
+
+    function fieldClickHandler () {
+        var node = d3.select(this);
+        var text = node.selectAll('text').text();
+        var node_id = node.attr('id');
+        var node_name = node.data()[0].parent.key;
+        //console.log(node_name);
+        refresh_data($("#hb_id").val(), node_name);
+    }
+
+    function refresh_data(hb_id, node_id) {
+        //$("#graph_box").html('<div style="margin:0px;width:100%;text-align:center;">加载中...<div>');
+        var params = {
+            node_id: node_id,
+            hb_id: hb_id,
+            click_time: $("#click_time").val(),
+        };
+        var query = $.param(params);
+        $.get("/hb/" , params=params, function (res) {
+            if (res.status != 100000) {
+                $("#graph_box").html(res.msg);
+                return;
+            }
+            $("#click_time").val(res.data.click_time);
+            if (res.data.data_type == 'src'){
+                $("#graph_box").html('<center><div id="graph" style="vertical-align: middle;"></div></center>');
+                render_src(res.data.node_data)
+            }
+            else if (res.data.data_type == 'png'){
+                $("#graph_box").html('<img src="' + res.data.node_data + '" />');
+            } else {
+                $("#graph_box").html(res.data.node_data);
+            }
+        });
+    }
+
+    $('#button1').click(function () {
+        $("#hb_id").val("201901");
+        $("#node_id").val("1");
+        refresh_data("201901", "1");
+    });
+
+    $('#button2').click(function () {
+        $("#hb_id").val("201902");
+        $("#node_id").val("1");
+        refresh_data("201902", "1");
+    });
+    function refresh_email() {
+        var params = {
+            
+        };
+        var query = $.param(params);
+        $.get("/email/" , params=params, function (res) {
+            if (res.status != 100000) {
+                $("#graph_email").html(res.msg);
+                return;
+            }
+            if (res.data.data_type == 'src'){
+                $("#graph_email").html('<center><div id="graph" style="vertical-align: middle;"></div></center>');
+                render_src(res.data.email_data)
+            }
+            else if (res.data.data_type == 'png'){
+                $("#graph_email").html('<img src="' + res.data.email_data + '" />');
+            } else {
+                $("#graph_email").html(res.data.email_data);
+            }
+        });
+    }
+    refresh_email();
+</script>
+</html>
