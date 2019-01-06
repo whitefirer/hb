@@ -4,7 +4,7 @@
 #### 启动
 
 ##### 1.docker启动
-    docker-compose up -dp
+    docker-compose up -d
 
-##### 2.直接启动
+##### 2.直接启
     python run.py
