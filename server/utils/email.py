@@ -30,6 +30,8 @@ def create_node(chart_data, name, label):
         'fontname': 'serif',
         'fontsize': '14',
         'fontcolor': 'black',
+        'fillcolor': 'transparent',
+        'bgcolor': 'transparent',
     }
 
     return chart_data.node(**kwargs)
@@ -37,7 +39,7 @@ def create_node(chart_data, name, label):
 def get_data(payload):
 
     chart_data = Digraph('邮箱')
-    chart_data.graph_attr.update(rank='same', rankdir='TB')
+    chart_data.graph_attr.update(rank='same', rankdir='TB', bgcolor='transparent')
     data_type = 'png'
     emmail = 'whitefirer@gmail.com'
 
