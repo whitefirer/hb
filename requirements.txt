@@ -9,7 +9,7 @@ MarkupSafe==0.23
 requests==2.18.4.0
 simplejson==3.8.2
 six==1.10.0
-Werkzeug==0.14.1
+Werkzeug==0.15.5
 graphviz==0.9
 redis==2.10.6
 pycryptodome==3.7.2
